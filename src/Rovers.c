@@ -375,7 +375,7 @@ int main(int argc, char **argv)
                     print_timestamp();
                     printf("📋 Rover retornando à base...\n");
                     printf("⏱ Aguardando antes da próxima missão...\n\n");
-                    sleep(3);
+                    sleep(10);
                 }
             }
         }

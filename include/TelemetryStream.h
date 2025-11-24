@@ -13,7 +13,7 @@
 // ============ CONSTANTES ============
 #define TELEMETRY_PORT 5006
 #define MAX_TELEMETRY_CONNECTIONS 10
-#define TELEMETRY_SEND_INTERVAL 5  // Enviar telemetria a cada 5 segundos
+#define TELEMETRY_SEND_INTERVAL 1  // Enviar telemetria a cada 5 segundos
 
 // ============ TIPOS DE DADOS ============
 typedef enum {

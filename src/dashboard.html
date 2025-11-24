@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌐 Ground Control - MissionLink Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: rgba(255,255,255,0.95);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #1e3c72;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .timestamp {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .card h2 {
+            color: #1e3c72;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .stat:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2a5298;
+        }
+
+        .rovers-section {
+            grid-column: 1 / -1;
+        }
+
+        .rover-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #2a5298;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .rover-info {
+            flex: 1;
+        }
+
+        .rover-id {
+            font-weight: bold;
+            color: #1e3c72;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .rover-detail {
+            font-size: 0.9em;
+            color: #666;
+            margin: 3px 0;
+        }
+
+        .rover-stats {
+            display: flex;
+            gap: 20px;
+            min-width: 300px;
+        }
+
+        .stat-box {
+            text-align: center;
+        }
+
+        .stat-box-label {
+            font-size: 0.8em;
+            color: #999;
+            text-transform: uppercase;
+        }
+
+        .stat-box-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2a5298;
+        }
+
+        .status-active {
+            color: #28a745;
+        }
+
+        .status-inactive {
+            color: #dc3545;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2a5298, #6eb3d4);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .missions-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .missions-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #1e3c72;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .missions-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .missions-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .badge-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-progress {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .telemetry-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .telemetry-header {
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 10px;
+            font-size: 1.05em;
+        }
+
+        .telemetry-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .telemetry-data {
+            text-align: center;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+        }
+
+        .telemetry-label {
+            font-size: 0.8em;
+            color: #999;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .telemetry-value {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #2a5298;
+        }
+
+        .refresh-info {
+            text-align: center;
+            padding: 10px;
+            background: #e7f3ff;
+            border-radius: 6px;
+            color: #0066cc;
+            font-size: 0.9em;
+            margin-top: 15px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+        }
+
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background: #2a5298;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #1e3c72;
+        }
+
+        button.stop {
+            background: #dc3545;
+        }
+
+        button.stop:hover {
+            background: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌐 Ground Control - MissionLink</h1>
+            <p style="color: #666; font-size: 1.05em;">Sistema de Monitorização de Rovers</p>
+            <div class="timestamp" id="timestamp">Conectando...</div>
+        </header>
+
+        <div class="controls">
+            <button onclick="toggleAutoRefresh()">⏸ Pausar Atualização</button>
+            <button class="stop" onclick="location.reload()">🔄 Recarregar</button>
+        </div>
+
+        <div id="errorBox"></div>
+
+        <!-- SISTEMA STATUS -->
+        <div class="grid">
+            <div class="card">
+                <h2>📊 Status do Sistema</h2>
+                <div class="stat">
+                    <span class="stat-label">Rovers Ativos</span>
+                    <span class="stat-value" id="activeRovers">-</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Missões em Progresso</span>
+                    <span class="stat-value" id="inProgressMissions">-</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Missões Concluídas</span>
+                    <span class="stat-value" id="completedMissions">-</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Sessões de Telemetria</span>
+                    <span class="stat-value" id="telemetrySessions">-</span>
+                </div>
+                <div class="refresh-info" id="lastUpdate">Atualizado: nunca</div>
+            </div>
+        </div>
+
+        <!-- ROVERS -->
+        <div class="grid rovers-section">
+            <div class="card">
+                <h2>🤖 Rovers Conectados</h2>
+                <div id="roversList" class="loading">Carregando rovers...</div>
+            </div>
+        </div>
+
+        <!-- MISSÕES -->
+        <div class="grid rovers-section">
+            <div class="card">
+                <h2>🎯 Missões</h2>
+                <div id="missionsList" class="loading">Carregando missões...</div>
+            </div>
+        </div>
+
+        <!-- TELEMETRIA -->
+        <div class="grid rovers-section">
+            <div class="card">
+                <h2>📡 Telemetria em Tempo Real</h2>
+                <div id="telemetryList" class="loading">Carregando telemetria...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8080/api';
+        let autoRefresh = true;
+
+        async function fetchData(endpoint) {
+            try {
+                const response = await fetch(`${API_URL}${endpoint}`);
+                if (response.ok) {
+                    return await response.json();
+                }
+                return null;
+            } catch (error) {
+                console.error(`Erro ao buscar ${endpoint}:`, error);
+                return null;
+            }
+        }
+
+        function updateTimestamp() {
+            const now = new Date();
+            document.getElementById('timestamp').textContent = 
+                `Atualizado: ${now.toLocaleTimeString('pt-PT')}`;
+            document.getElementById('lastUpdate').textContent = 
+                `Atualizado: ${now.toLocaleTimeString('pt-PT')}`;
+        }
+
+        function formatState(state) {
+            const states = {
+                'idle': '⬛ Parado',
+                'in_mission': '🟢 Em Missão',
+                'returning': '🟡 Retornando',
+                'charging': '🔌 Recarregando',
+                'error': '❌ Erro'
+            };
+            return states[state] || state;
+        }
+
+        async function updateDashboard() {
+            if (!autoRefresh) return;
+
+            const systemData = await fetchData('/system/status');
+            const roversList = await fetchData('/rovers');
+            const missionsList = await fetchData('/missions');
+            const telemetryData = await fetchData('/telemetry/latest');
+
+            updateTimestamp();
+
+            // Atualizar status do sistema
+            if (systemData && systemData.system) {
+                const sys = systemData.system;
+                document.getElementById('activeRovers').textContent = `${sys.rovers.active}/${sys.rovers.total}`;
+                document.getElementById('inProgressMissions').textContent = sys.missions.in_progress;
+                document.getElementById('completedMissions').textContent = sys.missions.completed;
+                document.getElementById('telemetrySessions').textContent = `${sys.telemetry.active}/${sys.telemetry.sessions}`;
+            }
+
+            // Atualizar rovers
+            if (roversList && roversList.rovers && roversList.rovers.length > 0) {
+                let roversHtml = '';
+                for (const rover of roversList.rovers) {
+                    const statusClass = rover.status === 'active' ? 'status-active' : 'status-inactive';
+                    const statusText = rover.status === 'active' ? '✓ Ativo' : '✗ Inativo';
+                    
+                    roversHtml += `
+                        <div class="rover-item">
+                            <div class="rover-info">
+                                <div class="rover-id">${rover.id}</div>
+                                <div class="rover-detail"><span class="${statusClass}">${statusText}</span></div>
+                                <div class="rover-detail">Missão: ${rover.mission_id}</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${rover.progress}%"></div>
+                                </div>
+                            </div>
+                            <div class="rover-stats">
+                                <div class="stat-box">
+                                    <div class="stat-box-label">Bateria</div>
+                                    <div class="stat-box-value">${rover.battery}%</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-box-label">Progresso</div>
+                                    <div class="stat-box-value">${rover.progress}%</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-box-label">Último Update</div>
+                                    <div class="stat-box-value">${rover.last_update_seconds_ago}s</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                document.getElementById('roversList').innerHTML = roversHtml;
+            } else {
+                document.getElementById('roversList').innerHTML = '<p style="color: #999;">Nenhum rover conectado</p>';
+            }
+
+            // Atualizar missões
+            if (missionsList && missionsList.missions && missionsList.missions.length > 0) {
+                let missionsHtml = `
+                    <table class="missions-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Rover</th>
+                                <th>Tarefa</th>
+                                <th>Progresso</th>
+                                <th>Bateria</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                for (const mission of missionsList.missions) {
+                    const badgeClass = mission.status === 'completed' ? 'badge-completed' : 'badge-progress';
+                    const badgeText = mission.status === 'completed' ? '✅ Concluída' : '⏳ Em Progresso';
+                    
+                    missionsHtml += `
+                        <tr>
+                            <td>${mission.id}</td>
+                            <td>${mission.rover_id}</td>
+                            <td>${mission.task_type}</td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${mission.progress}%"></div>
+                                </div>
+                                ${mission.progress}%
+                            </td>
+                            <td>${mission.battery}%</td>
+                            <td><span class="status-badge ${badgeClass}">${badgeText}</span></td>
+                        </tr>
+                    `;
+                }
+                
+                missionsHtml += '</tbody></table>';
+                document.getElementById('missionsList').innerHTML = missionsHtml;
+            } else {
+                document.getElementById('missionsList').innerHTML = '<p style="color: #999;">Nenhuma missão criada</p>';
+            }
+
+            // Atualizar telemetria
+            if (telemetryData && telemetryData.telemetry && telemetryData.telemetry.length > 0) {
+                let telemetryHtml = '';
+                for (const telem of telemetryData.telemetry) {
+                    telemetryHtml += `
+                        <div class="telemetry-item">
+                            <div class="telemetry-header">${telem.rover_id}</div>
+                            <div class="telemetry-grid">
+                                <div class="telemetry-data">
+                                    <div class="telemetry-label">Posição</div>
+                                    <div class="telemetry-value">(${telem.position.x.toFixed(1)}, ${telem.position.y.toFixed(1)})</div>
+                                </div>
+                                <div class="telemetry-data">
+                                    <div class="telemetry-label">Bateria</div>
+                                    <div class="telemetry-value">${telem.battery}%</div>
+                                </div>
+                                <div class="telemetry-data">
+                                    <div class="telemetry-label">Temperatura</div>
+                                    <div class="telemetry-value">${telem.temperature.toFixed(1)}°C</div>
+                                </div>
+                                <div class="telemetry-data">
+                                    <div class="telemetry-label">Sinal</div>
+                                    <div class="telemetry-value">${telem.signal_strength}%</div>
+                                </div>
+                                <div class="telemetry-data">
+                                    <div class="telemetry-label">Estado</div>
+                                    <div class="telemetry-value">${formatState(telem.state)}</div>
+                                </div>
+                                <div class="telemetry-data">
+                                    <div class="telemetry-label">Último Update</div>
+                                    <div class="telemetry-value">${telem.last_update_ago}s</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                document.getElementById('telemetryList').innerHTML = telemetryHtml;
+            } else {
+                document.getElementById('telemetryList').innerHTML = '<p style="color: #999;">Nenhuma telemetria recebida</p>';
+            }
+        }
+
+        function toggleAutoRefresh() {
+            autoRefresh = !autoRefresh;
+            event.target.textContent = autoRefresh ? '⏸ Pausar Atualização' : '▶ Retomar Atualização';
+            if (autoRefresh) updateDashboard();
+        }
+
+        // Atualizar a cada 2 segundos
+        updateDashboard();
+        setInterval(() => {
+            if (autoRefresh) updateDashboard();
+        }, 2000);
+    </script>
+</body>
+</html>
