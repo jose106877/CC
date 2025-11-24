@@ -180,10 +180,27 @@ void send_progress_update(int sockfd, struct sockaddr_in *server_addr,
 
         // ===== GUARDAR ESTADO A CADA PROGRESSO =====
         state->battery = battery;
-        state->progress = progress;
-        save_rover_state(state->rover_id, state,
-                         0, 0);
+        state->progress = progress; save_rover_state(state->rover_id, state, 0, 0); } }
+
+void recharge_battery(uint8_t *bateria) {
+   print_timestamp();
+    printf("🔋 ALERTA: Bateria baixa! (%u%%)\n", *bateria);
+    printf("🔌 Iniciando recarregamento em campo...\n");
+    
+    // Aguardar 15 segundos
+    for (int i = 15; i > 0; i--)
+    {
+        print_timestamp();
+        printf("⏳ Recarregando... %d segundos restantes\n", i);
+        sleep(1);
     }
+    
+    // Bateria volta a 100%
+    *bateria = 100;
+    
+    print_timestamp();
+    printf("✓ Recarregamento completo! Bateria: 100%%\n");
+    printf("▶ Continuando missão...\n\n"); 
 }
 
 void execute_mission_progress(int sockfd, struct sockaddr_in *server_addr,
@@ -197,6 +214,14 @@ void execute_mission_progress(int sockfd, struct sockaddr_in *server_addr,
             *progress = 100;
         if (*battery < 10)
             *battery = 10;
+
+        // ===== NOVO: VERIFICAR BATERIA ANTES DE CONTINUAR =====
+        if (*battery < 20 && *progress < 100)
+        {
+            print_timestamp();
+            printf("🔋 Bateria crítica detectada (%.0u%%)\n\n", *battery);
+            recharge_battery(battery);
+        }
 
         if (*progress < 100)
         {
