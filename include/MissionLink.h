@@ -27,7 +27,7 @@
 
 // ============ CONSTANTES ============
 #define PORT 5005
-#define MAX_ROVERS 10
+#define MAX_ROVERS 5
 #define MAX_MISSIONS 100
 #define HANDSHAKE_TIMEOUT 2
 #define HANDSHAKE_RETRIES 5

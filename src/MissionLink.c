@@ -69,7 +69,7 @@ ssize_t send_udp_with_ack(int sockfd, struct sockaddr_in *server_addr,
             printf("[UDP] ✓ ACK recebido (seq=%u)\n", ack_pkt.seq);
             return sent;
         }
-        
+       
         retries++;
         print_timestamp();
         printf("[UDP] ⚠ ACK não recebido, retentando... (%d/5)\n", retries);
